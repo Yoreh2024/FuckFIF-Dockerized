@@ -228,6 +228,8 @@ class FiFWebClient:
                         + answer_string[answer_string.find(">") + 1 :]
                     )
 
+                answer_string = answer_string.strip().replace("&quot;", "")
+
                 if locate != -1:
                     answer[_j["photo"]][locate - 1] += answer_string
                 else:
