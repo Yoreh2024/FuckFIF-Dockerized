@@ -17,10 +17,14 @@ speaker = Speaker(  # 初始化语音合成器
     os.getenv("tts_source_file","draft/3.wav"),  # 10秒左右的你的录音，用于生成目标音色
 )
 
-with io.open("user.json") as f:
-    user_json = json.load(f)
-    username = os.getenv("username",user_json["username"])
-    password = os.getenv("password",user_json["password"])
+if os.path.isfile("user.json"):
+    with io.open("user.json") as f:
+        user_json = json.load(f)
+        username = user_json.get("username", os.getenv("username"))
+        password = user_json.get("password", os.getenv("password"))
+else:
+    username = os.getenv("username")
+    password = os.getenv("password")
 
 user_info = fif.login(username, password)
 
