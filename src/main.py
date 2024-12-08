@@ -50,7 +50,7 @@ for i, task in enumerate(fif.get_task_list(fif.get_page())["data"]["ttiList"]):
         ]
         print("[main] 正在开始第{}个单元。单元代码为{}。".format(j + 1, unit_info["id"]))
         for k, level in enumerate(unit_info["levelList"]):
-            if level["levelScore"] >= 80:
+            if level["levelScore"] >= 100:
                 print("[main] 等级{}超过目标分数。已跳过。".format(level["levelName"]))
                 continue
             print(

@@ -17,5 +17,3 @@ tmp/
 
 # secret
 user.json
-
-Dockerfile
