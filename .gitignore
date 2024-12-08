@@ -3,8 +3,11 @@
 .vscode
 .devcontainer
 
+# git
+.gitignore
+
 # cache
-draft/
+draft/3.wav
 cache/
 .pytest_cache
 __pycache__/
@@ -17,3 +20,4 @@ tmp/
 
 # secret
 user.json
+.gitignore

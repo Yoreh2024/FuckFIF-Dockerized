@@ -1,4 +1,5 @@
 import json
+import os
 
 from playwright.sync_api import Page, sync_playwright
 
@@ -23,7 +24,7 @@ class FiFWebClient:
     def __init__(self):
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
-            headless=False,
+            headless=os.getenv("is_headless",False),
             # args=["--use-fake-device-for-media-stream"]
         )
         self.context = self.browser.new_context(permissions=["microphone"])
