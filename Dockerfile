@@ -15,9 +15,15 @@ RUN mkdir -p ~/.local/share/tts && \
     unzip /tmp/models.zip -d ~/.local/share/tts && \
     rm /tmp/models.zip
 
+ARG CACHE_BUST=1
+
 RUN git clone https://github.com/Yoreh2024/FuckFIF-Dockerized ~/fuckfif
+ENV tts_start_mode=cpu
 
 ENV tts_start_mode=cpu
 
+WORKDIR /home/fif/fuckfif
+RUN mkdir tmp
+
 CMD pulseaudio --start --system=false --exit-idle-time=-1 && \
-    python ~/fuckfif/src/main.py
+    python src/main.py

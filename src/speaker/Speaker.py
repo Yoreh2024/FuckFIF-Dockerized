@@ -12,8 +12,8 @@ class Speaker:
 
     def speak(self, text: str):
         print("[Speaker] 正在合成语音。")
-        self.tts_solver.get_file(text, "tmp/temp.wav")
+        self.tts_solver.get_file(text, "/tmp/temp.wav")
         print("[Speaker] 正在播放语音。")
-        self.virtual_mic.play("tmp/temp.wav")
+        self.virtual_mic.play("/tmp/temp.wav")
         print("[Speaker] 语音播放完成。")
         return

@@ -24,8 +24,12 @@ class FiFWebClient:
     def __init__(self):
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
-            headless=os.getenv("is_headless",True),
-            args=["--use-fake-ui-for-media-stream"]
+            headless=os.getenv("is_headless",False),
+            args=["--no-gpu",
+                  "--no-sandbox",
+                  "--use-fake-ui-for-media-stream",
+                  "--use-fake-device-for-media-stream",
+                  "--use-file-for-fake-audio-capture=\"/tmp/temp.wav\""]
         )
         self.context = self.browser.new_context(permissions=["microphone"])
         self.page = self.context.new_page()
