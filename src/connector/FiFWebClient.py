@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from playwright.sync_api import Page, sync_playwright
 
@@ -24,12 +25,11 @@ class FiFWebClient:
     def __init__(self):
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
-            headless=os.getenv("is_headless",False),
-            args=["--no-gpu",
-                  "--no-sandbox",
+            headless=os.getenv("is_headless",True),
+            args=[
+                "--disable-audio-processing",
                   "--use-fake-ui-for-media-stream",
-                  "--use-fake-device-for-media-stream",
-                  "--use-file-for-fake-audio-capture=\"/tmp/temp.wav\""]
+                  "--use-fake-device-for-media-stream"]
         )
         self.context = self.browser.new_context(permissions=["microphone"])
         self.page = self.context.new_page()
@@ -162,6 +162,7 @@ class FiFWebClient:
         print("挑战完成。等待提交。")
 
         page.get_by_text("AI 评分").is_enabled(timeout=0)  # 阻塞
+        time.sleep(15)
 
         print("当前单元结束。")
 

@@ -1,29 +1,17 @@
 FROM python:3.10
+RUN pip3 install playwright git+https://github.com/SWivid/F5-TTS.git
 
-RUN apt update && \
-    apt install -y pulseaudio ffmpeg
-RUN pip3 install playwright coqui-tts
-RUN playwright install-deps
+RUN playwright install-deps && \
+    playwright install chromium-headless-shell
 
-RUN useradd -m fif
-USER fif
+RUN apt install -y pipewire ffmpeg
 
-RUN playwright install chromium-headless-shell
-    
-RUN mkdir -p ~/.local/share/tts && \
-    curl -L https://github.com/coqui-ai/TTS/releases/download/v0.10.1_models/tts_models--multilingual--multi-dataset--your_tts.zip -o /tmp/models.zip && \
-    unzip /tmp/models.zip -d ~/.local/share/tts && \
-    rm /tmp/models.zip
+RUN mkdir /model && \
+    curl -L -o /model/model_1200000.pt https://www.modelscope.cn/models/AI-ModelScope/F5-TTS/resolve/master/F5TTS_Base/model_1200000.pt && \
+    curl -L -o /model/vocab.txt https://www.modelscope.cn/models/AI-ModelScope/F5-TTS/resolve/master/F5TTS_Base/vocab.txt
 
 ARG CACHE_BUST=1
 
-RUN git clone https://github.com/Yoreh2024/FuckFIF-Dockerized ~/fuckfif
-ENV tts_start_mode=cpu
+COPY . /fuckfif
 
-ENV tts_start_mode=cpu
-
-WORKDIR /home/fif/fuckfif
-RUN mkdir tmp
-
-CMD pulseaudio --start --system=false --exit-idle-time=-1 && \
-    python src/main.py
+CMD tail -f /dev/null
