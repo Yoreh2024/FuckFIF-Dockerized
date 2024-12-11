@@ -1,17 +1,31 @@
 FROM python:3.10
-RUN pip3 install playwright git+https://github.com/SWivid/F5-TTS.git
 
-RUN playwright install-deps && \
-    playwright install chromium-headless-shell
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt install -y pipewire ffmpeg
+RUN apt update && \
+    apt install -y ffmpeg pulseaudio && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN mkdir /model && \
-    curl -L -o /model/model_1200000.pt https://www.modelscope.cn/models/AI-ModelScope/F5-TTS/resolve/master/F5TTS_Base/model_1200000.pt && \
-    curl -L -o /model/vocab.txt https://www.modelscope.cn/models/AI-ModelScope/F5-TTS/resolve/master/F5TTS_Base/vocab.txt
+RUN useradd -m fif
+USER fif
 
-ARG CACHE_BUST=1
+# RUN mkdir -p ~/.local/share/tts && \
+#     curl -L https://github.com/coqui-ai/TTS/releases/download/v0.13.0_models/voice_conversion_models--multilingual--vctk--freevc24.zip -o /tmp/models.zip && \
+#     unzip /tmp/models.zip -d ~/.local/share/tts && \
+#     rm /tmp/models.zip
 
-COPY . /fuckfif
+COPY --chown=fif:fif . /fuckfif
 
-CMD tail -f /dev/null
+USER root
+RUN pip3 install --no-index --find-links=/fuckfif/depend/requirements --requirement /fuckfif/requirements.txt
+RUN playwright install-deps
+USER fif
+
+RUN playwright install chromium-headless-shell
+
+RUN rm -r ~/.local/share/tts && \
+    ln -s /fuckfif/model/tts ~/.local/share
+
+CMD pulseaudio --start --system=false --exit-idle-time=-1 && \
+    python /fuckfif/src/main.py && \
+    tail -f /dev/null

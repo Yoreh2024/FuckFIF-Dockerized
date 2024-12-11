@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import requests
 
 from playwright.sync_api import Page, sync_playwright
 
@@ -143,8 +144,22 @@ class FiFWebClient:
 
         page.wait_for_load_state("networkidle")
 
+        element = page.frame_locator("iframe").locator('#play_yuan_0_0')
+        
+        for i in range(5):
+            element.click(force=True)
+            source_url = element.evaluate('() => document.querySelector("#luAudio").src')
+            r = requests.get(source_url, stream=True)
+            with open("tmp/target_voice.wav", "wb") as f:
+                for bl in r.iter_content(chunk_size=1024):
+                    if bl:
+                        f.write(bl)
+            if r.status_code == 200:
+                break
+
         page.frame_locator("iframe").get_by_role("tab", name="挑战").click()
         page.frame_locator("iframe").get_by_role("button", name="开始挑战").click()
+
 
         # 等待3秒
         page.wait_for_timeout(3000)
@@ -154,7 +169,7 @@ class FiFWebClient:
             page.frame_locator("iframe").get_by_text("结束录音").is_enabled(timeout=0)
 
             print("正在回答第{}条。答案，内容为：\n{}".format(answer_index + 1, answer_text))
-            speaker.speak(answer_text)
+            speaker.speak()
             print("第{}条回答完成。".format(answer_index + 1))
 
             page.frame_locator("iframe").get_by_text("结束录音").click()
