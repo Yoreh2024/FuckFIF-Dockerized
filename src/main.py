@@ -2,6 +2,8 @@ import io
 import json
 import os
 
+from config import config
+
 print("[main] 正在检测环境并加载神经网络。")
 
 from connector.FiFWebClient import FiFWebClient
@@ -9,26 +11,10 @@ from speaker.Speaker import Speaker
 
 print("[main] FiF口语,启动!")
 
-fif = FiFWebClient()  # 初始化FiF口语网页客户端
-speaker = Speaker(  # 初始化语音合成器
-    os.getenv("tts_model_name","voice_conversion_models/multilingual/vctk/freevc24"),  # 语音合成器模型
-    os.getenv("tts_start_mode","cpu"),  # cuda|cpu 是否启用GPU加速
-    os.getenv("vmic_name","VirtualPipeMic"),  # 虚拟麦克风名称 最后会将音频流输出到/tmp/{此选项的名称}
-    "tmp/source_voice.wav",
-    os.getenv("tts_source_file","draft/3.wav"),  # 10秒左右的你的录音，用于生成目标音色
-    "tmp/output_voice.wav"
-)
+fif = FiFWebClient()
+speaker = Speaker()
 
-if os.path.isfile("user.json"):
-    with io.open("user.json") as f:
-        user_json = json.load(f)
-        username = user_json.get("username", os.getenv("username"))
-        password = user_json.get("password", os.getenv("password"))
-else:
-    username = os.getenv("username")
-    password = os.getenv("password")
-
-user_info = fif.login(username, password)
+user_info = fif.login(config.username, config.password)
 
 print(
     "[main] {}登录成功。用户ID为{}。".format(

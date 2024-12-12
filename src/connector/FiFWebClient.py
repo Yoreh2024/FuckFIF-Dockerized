@@ -3,6 +3,8 @@ import os
 import time
 import requests
 
+from config import config
+
 from playwright.sync_api import Page, sync_playwright
 
 
@@ -150,7 +152,7 @@ class FiFWebClient:
             element.click(force=True)
             source_url = element.evaluate('() => document.querySelector("#luAudio").src')
             r = requests.get(source_url, stream=True)
-            with open("tmp/target_voice.wav", "wb") as f:
+            with open(config.tts.source_file, "wb") as f:
                 for bl in r.iter_content(chunk_size=1024):
                     if bl:
                         f.write(bl)

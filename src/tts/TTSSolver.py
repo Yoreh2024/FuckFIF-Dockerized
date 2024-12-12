@@ -1,6 +1,7 @@
 import os
 from TTS.api import TTS
 
+from config import config
 
 class TTSSolver:
     def __init__(self, model, mode, target_voice_path):
