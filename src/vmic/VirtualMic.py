@@ -33,11 +33,21 @@ class VirtualMic:
 
     def play(self, file_path):
         print("[VirtualMic] 音频流开始从{}读到虚拟声卡中。".format(file_path))
-        print("ffmpeg -re -i {} -f {} -ar {} -ac {} -async 1 -bufsize 10M -filter:a volume=0.8 - > /tmp/{}".format(
-                file_path, self.format, self.rate, self.channels, self.device_name
+        print("ffmpeg -re -i {} -ar {} -ac {} -async 1 -filter:a volume=0.5 - > /tmp/{}".format(
+                file_path, self.rate, self.channels, self.device_name
             ))
         os.system(
-            "ffmpeg -re -i {} -f {} -ar {} -ac {} -async 1 -bufsize 10M -filter:a volume=0.8 - > /tmp/{}".format(
+            "ffmpeg -i {} -ar 44100 -ac 2 -acodec pcm_s16le -filter_complex asetrate=44100*2^(-1),atempo=1/2^(-1) tmp.wav".format(
+                file_path
+            )
+        )
+        os.system(
+            "mv tmp.wav {}".format(
+                file_path
+            )
+        )
+        os.system(
+            "ffmpeg -re -i {} -f {} -ar {} -ac {} -async 1 -filter:a volume=0.5 - > /tmp/{}".format(
                 file_path, self.format, self.rate, self.channels, self.device_name
             )
         )

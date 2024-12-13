@@ -29,10 +29,19 @@ class FiFWebClient:
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
             headless=os.getenv("is_headless",True),
-            args=[
-                "--disable-audio-processing",
+            args=[#"--disable-audio-processing",
                   "--use-fake-ui-for-media-stream",
-                  "--use-fake-device-for-media-stream"]
+                  "--disable-audio-hardware-acceleration",
+                  "--disable-audio-service",
+                  "--disable-audio-premixer",
+                  "--disable-webaudio",
+                  "--disable-audio-jitter-buffer",
+                  "--disable-audio-echo-cancellation",
+                  "--disable-audio-noise-suppression",
+                  "--disable-audio-automatic-gain-control",
+                  "--disable-audio-high-pass-filter",
+                  "--disable-audio-output-resampling"
+                  ]
         )
         self.context = self.browser.new_context(permissions=["microphone"])
         self.page = self.context.new_page()
@@ -147,9 +156,11 @@ class FiFWebClient:
         page.wait_for_load_state("networkidle")
 
         element = page.frame_locator("iframe").locator('#play_yuan_0_0')
+        page.wait_for_timeout(3000)
         
         for i in range(5):
             element.click(force=True)
+            page.wait_for_timeout(2000)
             source_url = element.evaluate('() => document.querySelector("#luAudio").src')
             r = requests.get(source_url, stream=True)
             with open(config.tts.source_file, "wb") as f:
@@ -160,11 +171,11 @@ class FiFWebClient:
                 break
 
         page.frame_locator("iframe").get_by_role("tab", name="挑战").click()
+
+        speaker.get_file()
+
         page.frame_locator("iframe").get_by_role("button", name="开始挑战").click()
-
-
-        # 等待3秒
-        page.wait_for_timeout(3000)
+        time.sleep(3)
 
         for answer_index, answer_text in enumerate(answer):
             print("等待开始录音。")
@@ -179,7 +190,14 @@ class FiFWebClient:
         print("挑战完成。等待提交。")
 
         page.get_by_text("AI 评分").is_enabled(timeout=0)  # 阻塞
-        time.sleep(15)
+
+        ai_score = page.get_by_text("AI 评分") \
+                       .locator('xpath=..') \
+                       .locator('p') \
+                       .first \
+                       .text_content()
+        print(f"得分: {ai_score}")
+        time.sleep(5)
 
         print("当前单元结束。")
 
